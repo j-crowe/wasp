@@ -1,4 +1,5 @@
 import bencode
+import urllib
 
 nest = None
 
@@ -8,22 +9,24 @@ def main():
 def parse_torrent():
     "DESC: Asks user for location of .torrent file. Parses and saves metadata results"
     t_content = ''
+    global nest
     torrent_file = raw_input("Torrent File Location: ")
+    if nest is None:
+        #TODO: check if nest saved to disk else create a new nest
+        nest = Nest()
 
     try:
         # Attempt to open the torrent file and bdecode the metadata
         with open(torrent_file, 'r') as content_file:
             t_content = content_file.read()
-            hatch(bencode.bdecode(t_content))
+            import pdb; pdb.set_trace()
+            tmp = bencode.bdecode(t_content)
+            nest.hatch(tmp)
     except IOError:
         print 'ERROR: Could not open file: ' + torrent_file
     except:
         print 'ERROR: An unknown error occurred in opening or bdecoding the file.'
 
-
-def hatch(meta_data):
-    "DESC: generate a new wasp"
-    hatchling = Wasp(meta_data)
 
 
 class Wasp(object):
@@ -42,21 +45,29 @@ class Wasp(object):
     def apple(self):
         print "I AM CLASSY APPLES!"
 
+    def find_peers(self):
+        print urllib.quote_plus("http://www.yahoo.com/")
 
-Class Nest(object):
+
+class Nest(object):
 
     def __init__(self):
         self.colony = []
 
-    def assimilate(hatchling):
+    def hatch(self, meta_data):
+        "DESC: generate a new wasp"
+        hatchling = Wasp(meta_data)
+        self.assimilate(hatchling)
+
+    def assimilate(self, hatchling):
         # TODO: check if torrent already exists in colony
         self.colony.append(hatchling)
 
-    def destroy(wasp):
+    def destroy(self, wasp):
         # TODO: Check if was exists, destroy it and all saved and associated data
         print "destroy"
 
-    def swarm():
+    def swarm(self):
         # TODO: Activate the swarm. Spin off threads for each wasp in colony to seed or leech
         print "swarm"
 
