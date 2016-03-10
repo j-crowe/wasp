@@ -11,7 +11,9 @@ def parse_torrent():
     try:
         with open(torrent_file, 'r') as content_file:
             t_content = content_file.read()
-            bencode.bdecode(t_content)
+            meta_data = bencode.bdecode(t_content)
+            print meta_data
+            import pdb; pdb.set_trace()
     except:
         print 'WASP: Error opening file'
 
@@ -19,8 +21,13 @@ def parse_torrent():
 
 class Wasp(object):
 
-    def __init__(self):
-        self.tangerine = "And now a thousand years between"
+    def __init__(self, meta_data):
+        self.announce = meta_data['announce']
+        self.piece_length = meta_data['info']['piece length']
+        self.pieces = meta_data['info']['pieces']
+        # TODO: Only works on single file torrents
+        self.name = meta_data['info']['name']
+        self.length = meta_data['info']['length']
 
     def apple(self):
         print "I AM CLASSY APPLES!"
