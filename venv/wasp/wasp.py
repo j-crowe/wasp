@@ -1,5 +1,7 @@
 import bencode
 
+nest = None
+
 def main():
     parse_torrent()
 
@@ -41,6 +43,22 @@ class Wasp(object):
         print "I AM CLASSY APPLES!"
 
 
+Class Nest(object):
+
+    def __init__(self):
+        self.colony = []
+
+    def assimilate(hatchling):
+        # TODO: check if torrent already exists in colony
+        self.colony.append(hatchling)
+
+    def destroy(wasp):
+        # TODO: Check if was exists, destroy it and all saved and associated data
+        print "destroy"
+
+    def swarm():
+        # TODO: Activate the swarm. Spin off threads for each wasp in colony to seed or leech
+        print "swarm"
 
 if __name__ == "__main__":
     main()
