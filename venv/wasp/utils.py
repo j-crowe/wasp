@@ -18,10 +18,7 @@ def decode_expanded_peers(peers):
 def decode_binary_peers(peers):
     "DESC: Parse out binary peers list and return list of IPs and ports for connection attempts"
     peers = [peers[i:i+6] for i in range(0, len(peers), 6)]
-    import pdb; pdb.set_trace()
-    sockets = [(socket.inet_ntoa(p[:4]), decode_port(p[4:])) for p in peers]
-    print peers
-    return [(p[:4], p[4:]) for p in peers]
+    return [(socket.inet_ntoa(p[:4]), decode_port(p[4:])) for p in peers]
 
 
 def parse_peerlist(response):
