@@ -48,9 +48,14 @@ class Wasp(object):
         self.pieces = meta_data['info']['pieces']
         self.info_hash = hashlib.sha1(bencode.bencode(meta_data['info'])).digest()
         self.name = meta_data['info']['name']
+        self.peer_id=''
         # TODO: Only works on single file torrents
         file = meta_data['info']['files'][0]
         self.length = file['length']
+
+
+    def generate_peer_id(self):
+        return '-' + CLIENT_ID + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
 
     def generate_handshake(info_hash, peer_id):
         """ Returns a handshake. """
@@ -69,15 +74,16 @@ class Wasp(object):
         # TODO: For multi files, compute total length from the individual file lengths
         length = self.length
         # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomint range.
-        peer_id = '-' + CLIENT_ID + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
+        peer_id = self.generate_peer_id()
+        self.peer_id = peer_id
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
         # TODO: last left off here in the parsing of the binary peer list
         ret = utils.parse_peerlist(req)
         import pdb; pdb.set_trace()
         print req
-    def generate_wasp_id(self):
-        peer_id = '-WS' + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
+
+
 
 
 class Nest(object):
