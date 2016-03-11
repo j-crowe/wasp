@@ -7,7 +7,10 @@ import utils
 
 
 nest = None
-version_num = '0001'
+
+CLIENT_NAME = 'wasptorret'
+VERSION_NUM = '0001'
+CLIENT_ID = 'WS'
 
 def main():
     parse_torrent()
@@ -49,6 +52,15 @@ class Wasp(object):
         file = meta_data['info']['files'][0]
         self.length = file['length']
 
+    def generate_handshake(info_hash, peer_id):
+        """ Returns a handshake. """
+
+        protocol_id = "BitTorrent protocol"
+        len_id = str(len(protocol_id))
+        reserved = "00000000"
+
+        return len_id + protocol_id + reserved + info_hash + peer_id
+
     def apple(self):
         # I'm leaving this forever
         print "I AM CLASSY APPLES!"
@@ -56,14 +68,16 @@ class Wasp(object):
     def get_tracker(self):
         # TODO: For multi files, compute total length from the individual file lengths
         length = self.length
-        # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomin range.
-        peer_id = '-WS' + version_num + '-' + str(random.randint(100000000000, 999999999999))
+        # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomint range.
+        peer_id = '-' + CLIENT_ID + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
         # TODO: last left off here in the parsing of the binary peer list
         ret = utils.parse_peerlist(req)
         import pdb; pdb.set_trace()
         print req
+    def generate_wasp_id(self):
+        peer_id = '-WS' + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
 
 
 class Nest(object):
