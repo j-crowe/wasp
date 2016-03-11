@@ -5,7 +5,7 @@ from struct import pack, unpack
 
 
 def decode_port(port):
-    """ Given a big-endian encoded port, returns the numerical port. """
+    "DESC: Given big endian encoded port, returns numerical port."
 
     return unpack(">H", port)[0]
 
@@ -16,14 +16,16 @@ def decode_expanded_peers(peers):
     return [(p["ip"], p["port"]) for p in peers]
 
 def decode_binary_peers(peers):
-    """ Return a list of IPs and ports, given a binary list of peers,
-    from a tracker response. """
-
-    peers = slice(peers, 6) # Cut the response at the end of every peer
-    return [(socket.inet_ntoa(p[:4]), decode_port(p[4:])) for p in peers]
+    "DESC: Parse out binary peers list and return list of IPs and ports for connection attempts"
+    peers = [peers[i:i+6] for i in range(0, len(peers), 6)]
+    import pdb; pdb.set_trace()
+    sockets = [(socket.inet_ntoa(p[:4]), decode_port(p[4:])) for p in peers]
+    print peers
+    return [(p[:4], p[4:]) for p in peers]
 
 
 def parse_peerlist(response):
+    "DESC: Given a response, parse out peers list and call appropriate decoding function for either protocol standard encoding."
     peer_dict = bencode.bdecode(response.content)
     peers = peer_dict['peers']
     if type(peers) == str:
