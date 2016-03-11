@@ -55,16 +55,19 @@ class Wasp(object):
 
 
     def generate_peer_id(self):
-        return '-' + CLIENT_ID + VERSION_NUM + '-' + str(random.randint(100000000000, 999999999999))
+        "DESC: Generate unique wasp peer id. Used as standard in bittorrent protocol."
+        wasp_random = str(random.randint(100000000000, 999999999999))
+        return '-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random
 
-    def generate_handshake(info_hash, peer_id):
+    def generate_handshake(self):
         """ Returns a handshake. """
 
         protocol_id = "BitTorrent protocol"
         len_id = str(len(protocol_id))
         reserved = "00000000"
-
-        return len_id + protocol_id + reserved + info_hash + peer_id
+        if len(self.peer_id) == 0:
+            self.generate_peer_id()
+        return len_id + protocol_id + reserved + self.info_hash + self.peer_id
 
     def apple(self):
         # I'm leaving this forever
