@@ -58,13 +58,27 @@ class Wasp(object):
         peer_id = '-WS' + version_num + '-' + str(random.randint(100000000000, 999999999999))
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
+        def parse_peerlist(response):
+            peer_dict = bencode.bdecode(response.content)
+            if isinstance(peer_dict['peers'], dict):
+                #TODO: Finish this. Don't have torrent of this type yet
+                print 'dictionary peer list'
+            else:
+                #TODO: Finish this. Figure out how to decode binary list. Maybe build a utils decoder
+                print 'binary encoded peer list'
+            import pdb; pdb.set_trace()
+            print peer_dict
+
+        parse_peerlist(req)
+
+
         print req
 
 
 class Nest(object):
 
     def __init__(self):
-        self.colony = []
+        self.colony = {}
 
     def hatch(self, meta_data):
         "DESC: generate a new wasp"
@@ -74,7 +88,9 @@ class Nest(object):
 
     def assimilate(self, hatchling):
         # TODO: check if torrent already exists in colony
-        self.colony.append(hatchling)
+        if hatchling.info_hash in self.colony:
+            print "ALERT: torrent file already exists"
+        self.colony[hatchling.info_hash] = hatchling
 
     def destroy(self, wasp):
         # TODO: Check if was exists, destroy it and all saved and associated data
