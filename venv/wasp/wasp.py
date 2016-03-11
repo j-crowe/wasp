@@ -2,7 +2,9 @@ import bencode
 import requests
 import hashlib
 import random
-import urllib
+import socket
+import utils
+
 
 nest = None
 version_num = '0001'
@@ -51,27 +53,16 @@ class Wasp(object):
         # I'm leaving this forever
         print "I AM CLASSY APPLES!"
 
-    def find_peers(self):
+    def get_tracker(self):
         # TODO: For multi files, compute total length from the individual file lengths
         length = self.length
         # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomin range.
         peer_id = '-WS' + version_num + '-' + str(random.randint(100000000000, 999999999999))
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
-        def parse_peerlist(response):
-            peer_dict = bencode.bdecode(response.content)
-            if isinstance(peer_dict['peers'], dict):
-                #TODO: Finish this. Don't have torrent of this type yet
-                print 'dictionary peer list'
-            else:
-                #TODO: Finish this. Figure out how to decode binary list. Maybe build a utils decoder
-                print 'binary encoded peer list'
-            import pdb; pdb.set_trace()
-            print peer_dict
-
-        parse_peerlist(req)
-
-
+        # TODO: last left off here in the parsing of the binary peer list
+        ret = utils.parse_peerlist(req)
+        import pdb; pdb.set_trace()
         print req
 
 
@@ -84,7 +75,7 @@ class Nest(object):
         "DESC: generate a new wasp"
         hatchling = Wasp(meta_data)
         self.assimilate(hatchling)
-        hatchling.find_peers()
+        hatchling.get_tracker()
 
     def assimilate(self, hatchling):
         # TODO: check if torrent already exists in colony
