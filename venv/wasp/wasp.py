@@ -1,7 +1,11 @@
 import bencode
+import requests
+import hashlib
+import random
 import urllib
 
 nest = None
+version_num = '0001'
 
 def main():
     parse_torrent()
@@ -9,6 +13,7 @@ def main():
 def parse_torrent():
     "DESC: Asks user for location of .torrent file. Parses and saves metadata results"
     t_content = ''
+    meta_dict = {}
     global nest
     torrent_file = raw_input("Torrent File Location: ")
     if nest is None:
@@ -19,14 +24,13 @@ def parse_torrent():
         # Attempt to open the torrent file and bdecode the metadata
         with open(torrent_file, 'r') as content_file:
             t_content = content_file.read()
-            import pdb; pdb.set_trace()
-            tmp = bencode.bdecode(t_content)
-            nest.hatch(tmp)
+            meta_dict = bencode.bdecode(t_content)
     except IOError:
         print 'ERROR: Could not open file: ' + torrent_file
     except:
         print 'ERROR: An unknown error occurred in opening or bdecoding the file.'
 
+    nest.hatch(meta_dict)
 
 
 class Wasp(object):
@@ -37,16 +41,24 @@ class Wasp(object):
         self.announce = meta_data['announce']
         self.piece_length = meta_data['info']['piece length']
         self.pieces = meta_data['info']['pieces']
+        self.info_hash = hashlib.sha1(bencode.bencode(meta_data['info'])).digest()
         self.name = meta_data['info']['name']
         # TODO: Only works on single file torrents
         file = meta_data['info']['files'][0]
         self.length = file['length']
 
     def apple(self):
+        # I'm leaving this forever
         print "I AM CLASSY APPLES!"
 
     def find_peers(self):
-        print urllib.quote_plus("http://www.yahoo.com/")
+        # TODO: For multi files, compute total length from the individual file lengths
+        length = self.length
+        # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomin range.
+        peer_id = '-WS' + version_num + '-' + str(random.randint(100000000000, 999999999999))
+        payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
+        req = requests.get(self.announce, params=payload)
+        print req
 
 
 class Nest(object):
@@ -58,6 +70,7 @@ class Nest(object):
         "DESC: generate a new wasp"
         hatchling = Wasp(meta_data)
         self.assimilate(hatchling)
+        hatchling.find_peers()
 
     def assimilate(self, hatchling):
         # TODO: check if torrent already exists in colony
