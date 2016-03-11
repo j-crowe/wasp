@@ -60,14 +60,23 @@ class Wasp(object):
         return '-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random
 
     def generate_handshake(self):
-        """ Returns a handshake. """
+        "DESC: Generates and returns initial bit torrent handshake"
 
         protocol_id = "BitTorrent protocol"
-        len_id = str(len(protocol_id))
-        reserved = "00000000"
+        id_length = str(len(protocol_id))
+        reserved_bits = "00000000"
         if len(self.peer_id) == 0:
             self.generate_peer_id()
-        return len_id + protocol_id + reserved + self.info_hash + self.peer_id
+        return id_length + protocol_id + reserved_bits + self.info_hash + self.peer_id
+
+    def send_handshake(self, host, port):
+        handshake = self.generate_handshake()
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect((host, port))
+        sock.send(handshake)
+
+        data = sock.recv(len(handshake))
+        sock.close()
 
     def apple(self):
         # I'm leaving this forever
@@ -81,10 +90,9 @@ class Wasp(object):
         self.peer_id = peer_id
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
-        # TODO: last left off here in the parsing of the binary peer list
-        ret = utils.parse_peerlist(req)
-        import pdb; pdb.set_trace()
-        print req
+        peers = utils.parse_peerlist(req)
+
+        #TODO: send peers off to be handled
 
 
 
