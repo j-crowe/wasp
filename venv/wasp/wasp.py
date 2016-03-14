@@ -63,13 +63,13 @@ class Wasp(object):
         "DESC: Generates and returns initial bit torrent handshake"
 
         protocol_id = "BitTorrent protocol"
-        id_length = str(len(protocol_id))
-        reserved_bits = "00000000"
+        id_length = len(protocol_id)
         if len(self.peer_id) == 0:
             self.generate_peer_id()
-        return id_length + protocol_id + reserved_bits + self.info_hash + self.peer_id
+        return ''.join([chr(id_length), protocol_id, chr(0) * 8, self.info_hash, self.peer_id])
 
     def send_handshake(self, host, port):
+        # import pdb; pdb.set_trace()
         handshake = self.generate_handshake()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((host, port))
@@ -91,9 +91,9 @@ class Wasp(object):
         payload = {'info_hash': self.info_hash, 'peer_id': peer_id, 'left': length}
         req = requests.get(self.announce, params=payload)
         peers = utils.parse_peerlist(req)
-
         #TODO: send peers off to be handled
-
+        #TODO: only doing handshake on first peer
+        self.send_handshake(peers[0][0], peers[0][1])
 
 
 
