@@ -87,7 +87,7 @@ class Wasp(object):
         # I'm leaving this forever
         print "I AM CLASSY APPLES!"
 
-    def get_tracker(self):
+    def get_peers(self):
         # TODO: For multi files, compute total length from the individual file lengths
         length = self.length
         # Peer id consists of a client code(WS) with a version num and a random client identifier 12 characters long hence the randomint range.
@@ -98,7 +98,8 @@ class Wasp(object):
         peers = utils.parse_peerlist(req)
         #TODO: send peers off to be handled
         #TODO: only doing handshake on first peer
-        self.send_handshake(peers[0][0], peers[0][1])
+        for peer in peers:
+            self.send_handshake(peer[0], peer[1])
 
 
 
@@ -111,7 +112,7 @@ class Nest(object):
         "DESC: generate a new wasp"
         hatchling = Wasp(meta_data)
         self.assimilate(hatchling)
-        hatchling.get_tracker()
+        hatchling.get_peers()
 
     def assimilate(self, hatchling):
         # TODO: check if torrent already exists in colony
