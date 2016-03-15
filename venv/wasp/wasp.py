@@ -76,8 +76,13 @@ class Wasp(object):
         sock.send(handshake)
 
         data = sock.recv(len(handshake))
-        sock.close()
-
+        try:
+            data = sock.recv(68)  # Peer's handshake - len from docs
+            if data:
+                print data
+                # self.initpeer(sock)
+        except:
+            print "ERROR: Did not recieve proper return handshake from peer"
     def apple(self):
         # I'm leaving this forever
         print "I AM CLASSY APPLES!"
