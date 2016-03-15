@@ -4,6 +4,7 @@ import hashlib
 import random
 import socket
 import utils
+from nest import Nest
 
 
 nest = None
@@ -69,7 +70,7 @@ class Wasp(object):
         return ''.join([chr(id_length), protocol_id, chr(0) * 8, self.info_hash, self.peer_id])
 
     def send_handshake(self, host, port):
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         handshake = self.generate_handshake()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect((host, port))
@@ -99,6 +100,9 @@ class Wasp(object):
         #TODO: send peers off to be handled
         #TODO: only doing handshake on first peer
         for peer in peers:
+            if peer[1] < 1024:
+            # Basic step to check if valid ip. If not skip. This should fix the fact that you are included in the ip list which is incorrect
+                continue
             self.send_handshake(peer[0], peer[1])
 
 if __name__ == "__main__":
