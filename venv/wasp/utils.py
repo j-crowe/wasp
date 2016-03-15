@@ -1,6 +1,7 @@
 import wasp
 import socket
 import bencode
+import hashlib
 from struct import pack, unpack
 
 
@@ -29,3 +30,6 @@ def parse_peerlist(response):
         return decode_binary_peers(peers)
     elif type(peers) == list:
         return decode_expanded_peers(peers)
+
+def socket_id(sock):
+    return hashlib.md5(sock.getpeername()[0] + str(sock.getpeername()[1])).hexdigest()
