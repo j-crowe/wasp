@@ -1,8 +1,9 @@
-import bencode
+from bencode import bencode, bdecode
+from hashlib import md5, sha1
 import requests
-import hashlib
 import random
 import socket
+
 import utils
 from nest import Nest
 from peer import Peer
@@ -35,7 +36,7 @@ def parse_torrent():
         # Attempt to open the torrent file and bdecode the metadata
         with open(torrent_file, 'r') as content_file:
             t_content = content_file.read()
-            meta_dict = bencode.bdecode(t_content)
+            meta_dict = bdecode(t_content)
     except IOError:
         print 'ERROR: Could not open file: ' + torrent_file
     except:
@@ -54,8 +55,8 @@ class Wasp(object):
         self.announce = meta_data['announce']
         self.piece_length = meta_data['info']['piece length']
         self.pieces = meta_data['info']['pieces']
-        self.info_hash = hashlib.sha1(
-            bencode.bencode(meta_data['info'])).digest()
+        self.info_hash = sha1(
+            bencode(meta_data['info'])).digest()
         self.name = meta_data['info']['name']
         self.peer_id = ''
         # TODO: Only works on single file torrents
@@ -95,7 +96,7 @@ class Wasp(object):
             if data:
                 print data
                 # import pdb; pdb.set_trace()
-                peer_id = hashlib.md5(host + str(port)).hexdigest()
+                peer_id = md5(host + str(port)).hexdigest()
                 temp_peer = Peer(sock, self, peer_id)
                 self.peer_dict[peer_id] = temp_peer
 
