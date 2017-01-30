@@ -1,6 +1,6 @@
 import wasp
 import socket
-import bencode
+import bencodepy
 import hashlib
 from struct import pack, unpack
 
@@ -28,7 +28,7 @@ def decode_binary_peers(peers):
 def parse_peerlist(response):
     """DESC: Given a response, parse out peers list and call appropriate
     decoding function for either protocol standard encoding."""
-    peer_dict = bencode.bdecode(response.content)
+    peer_dict = bencodepy.decode(response.content)
     peers = peer_dict['peers']
     if type(peers) == str:
         return decode_binary_peers(peers)
@@ -39,3 +39,13 @@ def parse_peerlist(response):
 def socket_id(sock):
     return hashlib.md5(sock.getpeername()[0] +
                        str(sock.getpeername()[1])).hexdigest()
+
+
+def convert(data):
+    if isinstance(data, bytes):
+        return data.decode('ascii')
+    if isinstance(data, dict):
+        return dict(map(convert, data.items()))
+    if isinstance(data, tuple):
+        return map(convert, data)
+    return data

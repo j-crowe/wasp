@@ -1,4 +1,4 @@
-from bencode import bencode, bdecode
+from bencoder import bencode, bdecode
 from hashlib import md5, sha1
 import requests
 import random
@@ -27,23 +27,24 @@ def parse_torrent():
     t_content = ''
     meta_dict = {}
     global nest
-    torrent_file = raw_input("Torrent File Location: ")
+    # torrent_file = input("Torrent File Location: ")
+    torrent_file = 'tst.torrent'
+    print(torrent_file)
     if nest is None:
         # TODO: check if nest saved to disk else create a new nest
         nest = Nest()
 
     try:
         # Attempt to open the torrent file and bdecode the metadata
-        with open(torrent_file, 'r') as content_file:
+        with open(torrent_file, 'r', encoding="ISO-8859-1") as content_file:
             t_content = content_file.read()
-            meta_dict = bdecode(t_content)
+            meta_dict = bdecode(bytes(t_content, encoding="ISO-8859-1"))
     except IOError:
-        print 'ERROR: Could not open file: ' + torrent_file
+        print('ERROR: Could not open file: ' + torrent_file)
     except:
-        print '''ERROR: An unknown error occurred in
-                opening or bdecoding the file.'''
-
-    nest.hatch(meta_dict)
+        print ('ERROR: An unknown error occurred in opening or decoding file.')
+    else:
+        nest.hatch(meta_dict)
 
 
 class Wasp(object):
@@ -52,6 +53,8 @@ class Wasp(object):
 
     def __init__(self, meta_data):
         # TODO: Handle non-existant vars appropriately
+        import pdb
+        pdb.set_trace()
         self.announce = meta_data['announce']
         self.piece_length = meta_data['info']['piece length']
         self.pieces = meta_data['info']['pieces']
@@ -94,7 +97,7 @@ class Wasp(object):
         try:
             data = sock.recv(68)  # Peer response handshake
             if data:
-                print data
+                print(data)
                 # import pdb; pdb.set_trace()
                 peer_id = md5(host + str(port)).hexdigest()
                 temp_peer = Peer(sock, self, peer_id)
@@ -102,11 +105,11 @@ class Wasp(object):
 
                 # self.initpeer(sock)
         except:
-            print "ERROR: Did not recieve proper return handshake from peer"
+            print("ERROR: Did not recieve proper return handshake from peer")
 
     def apple(self):
         # I'm leaving this forever
-        print "I AM CLASSY APPLES!"
+        print("I AM CLASSY APPLES!")
 
     def get_peers(self):
         # TODO: For multi files, compute total length
