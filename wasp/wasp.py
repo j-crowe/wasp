@@ -28,7 +28,7 @@ def parse_torrent():
     meta_dict = {}
     global nest
     # torrent_file = input("Torrent File Location: ")
-    torrent_file = 'tst.torrent'
+    torrent_file = '../test/tst.torrent'
     print(torrent_file)
     if nest is None:
         # TODO: check if nest saved to disk else create a new nest
