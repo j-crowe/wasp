@@ -1,4 +1,4 @@
-from bencoder import bencode, bdecode
+from bencode import bencode, bdecode
 from hashlib import md5, sha1
 import requests
 import random
@@ -36,9 +36,9 @@ def parse_torrent():
 
     try:
         # Attempt to open the torrent file and bdecode the metadata
-        with open(torrent_file, 'r', encoding="ISO-8859-1") as content_file:
+        with open(torrent_file, 'rb') as content_file:
             t_content = content_file.read()
-            meta_dict = bdecode(bytes(t_content, encoding="ISO-8859-1"))
+            meta_dict = bdecode(t_content)
     except IOError:
         print('ERROR: Could not open file: ' + torrent_file)
     except:
@@ -47,24 +47,22 @@ def parse_torrent():
         nest.hatch(meta_dict)
 
 
+
 class Wasp(object):
     """DESC: A wasp is a single instance of a torrent.
     Includes all metadata and functionality in seeding/leeching"""
 
     def __init__(self, meta_data):
         # TODO: Handle non-existant vars appropriately
-        import pdb
-        pdb.set_trace()
-        self.announce = meta_data['announce']
-        self.piece_length = meta_data['info']['piece length']
-        self.pieces = meta_data['info']['pieces']
-        self.info_hash = sha1(
-            bencode(meta_data['info'])).digest()
-        self.name = meta_data['info']['name']
+        self.announce = meta_data[b'announce']
+        self.piece_length = meta_data[b'info'][b'piece length']
+        self.pieces = meta_data[b'info'][b'pieces']
+        self.info_hash = sha1(bencode(meta_data[b'info'])).digest()
+        self.name = meta_data[b'info'][b'name']
         self.peer_id = ''
         # TODO: Only works on single file torrents
-        file = meta_data['info']['files'][0]
-        self.length = file['length']
+        file = meta_data[b'info'][b'files'][0]
+        self.length = file[b'length']
         self.peer_dict = {}
 
     def generate_peer_id(self):
