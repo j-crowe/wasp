@@ -1,50 +1,15 @@
-from bencode import bencode, bdecode
+from bencode import bencode
 from hashlib import md5, sha1
 import requests
 import random
 import socket
 
 import utils
-from nest import Nest
-from peer import Peer
-
-
-nest = None
+import peer as pr
 
 CLIENT_NAME = 'wasptorret'
 VERSION_NUM = '0001'
 CLIENT_ID = 'WS'
-
-
-def main():
-    parse_torrent()
-
-
-def parse_torrent():
-    """DESC: Asks user for location of .torrent file.
-    Parses and saves metadata results"""
-
-    t_content = ''
-    meta_dict = {}
-    global nest
-    # torrent_file = input("Torrent File Location: ")
-    torrent_file = '../test/tst.torrent'
-    print(torrent_file)
-    if nest is None:
-        # TODO: check if nest saved to disk else create a new nest
-        nest = Nest()
-
-    try:
-        # Attempt to open the torrent file and bdecode the metadata
-        with open(torrent_file, 'rb') as content_file:
-            t_content = content_file.read()
-            meta_dict = bdecode(t_content)
-    except IOError:
-        print('ERROR: Could not open file: ' + torrent_file)
-    except:
-        print ('ERROR: An unknown error occurred in opening or decoding file.')
-    else:
-        nest.hatch(meta_dict)
 
 
 class Wasp(object):
@@ -69,7 +34,7 @@ class Wasp(object):
         Used as standard in bittorrent protocol."""
 
         wasp_random = str(random.randint(100000000000, 999999999999))
-        return bytes('-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random, encoding='UTF-8')
+        return ('-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random).encode()
 
     def generate_handshake(self):
         """DESC: Generates and returns initial bit torrent handshake"""
@@ -95,17 +60,11 @@ class Wasp(object):
             data = sock.recv(68)  # Peer response handshake
             if data:
                 print(data)
-                # import pdb; pdb.set_trace()
-                # import pdb
-                # pdb.set_trace()
                 peer_id = md5(host.encode() +
                               str(port).encode()).hexdigest()
-                temp_peer = Peer(sock, self, peer_id)
+                temp_peer = pr.Peer(sock, self, peer_id)
                 self.peer_dict[peer_id] = temp_peer
-
-                import pdb
-                pdb.set_trace()
-                # self.initpeer(sock)
+                # TODO: handshake completed initiate download after this.
         except:
             print("ERROR: Did not recieve proper return handshake from peer")
 
@@ -134,7 +93,3 @@ class Wasp(object):
                 # which is incorrect
                 continue
             self.send_handshake(peer[0], peer[1])
-
-
-if __name__ == "__main__":
-    main()

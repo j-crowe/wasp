@@ -1,4 +1,4 @@
-import wasp
+import wasp as ws
 
 
 class Nest(object):
@@ -8,7 +8,7 @@ class Nest(object):
 
     def hatch(self, meta_data):
         """DESC: generate a new wasp"""
-        hatchling = wasp.Wasp(meta_data)
+        hatchling = ws.Wasp(meta_data)
         self.assimilate(hatchling)
         hatchling.get_peers()
 
