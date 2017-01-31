@@ -47,7 +47,6 @@ def parse_torrent():
         nest.hatch(meta_dict)
 
 
-
 class Wasp(object):
     """DESC: A wasp is a single instance of a torrent.
     Includes all metadata and functionality in seeding/leeching"""
@@ -70,19 +69,19 @@ class Wasp(object):
         Used as standard in bittorrent protocol."""
 
         wasp_random = str(random.randint(100000000000, 999999999999))
-        return '-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random
+        return bytes('-' + CLIENT_ID + VERSION_NUM + '-' + wasp_random, encoding='UTF-8')
 
     def generate_handshake(self):
         """DESC: Generates and returns initial bit torrent handshake"""
 
-        protocol_id = "BitTorrent protocol"
+        protocol_id = b"BitTorrent protocol"
         id_length = len(protocol_id)
         if len(self.peer_id) == 0:
             self.generate_peer_id()
 
         # Initial handshake from docs
-        return ''.join([chr(id_length), protocol_id,
-                        chr(0) * 8, self.info_hash,
+        return b''.join([(chr(id_length)).encode(), protocol_id,
+                        (chr(0) * 8).encode(), self.info_hash,
                         self.peer_id])
 
     def send_handshake(self, host, port):
@@ -97,10 +96,15 @@ class Wasp(object):
             if data:
                 print(data)
                 # import pdb; pdb.set_trace()
-                peer_id = md5(host + str(port)).hexdigest()
+                # import pdb
+                # pdb.set_trace()
+                peer_id = md5(host.encode() +
+                              str(port).encode()).hexdigest()
                 temp_peer = Peer(sock, self, peer_id)
                 self.peer_dict[peer_id] = temp_peer
 
+                import pdb
+                pdb.set_trace()
                 # self.initpeer(sock)
         except:
             print("ERROR: Did not recieve proper return handshake from peer")
